@@ -30,6 +30,8 @@
 
 #define LOCALIZED_STRING_TABLE_NAME @"DistanceOfTimeInWordsLocalizable"
 
+#define allOptionsEnabledByDefault (kDOTIWStringComponentModifier | kDOTIWStringComponentNumber   | kDOTIWStringComponentMeasure  | kDOTIWStringComponentDirection)
+
 @implementation NSDate (formatting)
 
 - (NSString *)formatWithString:(NSString *)format {
@@ -51,13 +53,6 @@
 }
 
 - (NSString *)distanceOfTimeInWords:(NSDate *)date {
-    
-  NSUInteger allOptionsEnabledByDefault =
-    kDOTIWStringComponentModifier |
-    kDOTIWStringComponentNumber   |
-    kDOTIWStringComponentMeasure  |
-    kDOTIWStringComponentDirection;
-
   return [self distanceOfTimeInWords:date withOptions:allOptionsEnabledByDefault];
 }
     
@@ -70,25 +65,24 @@
   if (options & kDOTIWStringComponentJustNow)
       if (fabs([self timeIntervalSinceDate:date]) < SECONDS_JUST_NOW_LIMIT)
         return NSLocalizedStringFromTable(@"Just now", LOCALIZED_STRING_TABLE_NAME, @"Indicates a recent action");
-    
-  NSString *Ago      = NSLocalizedStringFromTable(@"ago",       LOCALIZED_STRING_TABLE_NAME, @"Denotes past dates");
-  NSString *FromNow  = NSLocalizedStringFromTable(@"from now",  LOCALIZED_STRING_TABLE_NAME, @"Denotes future dates");
-  NSString *LessThan = NSLocalizedStringFromTable(@"Less than", LOCALIZED_STRING_TABLE_NAME, @"Indicates a less-than number");
-  NSString *About    = NSLocalizedStringFromTable(@"About",     LOCALIZED_STRING_TABLE_NAME, @"Indicates an approximate number");
-  NSString *Over     = NSLocalizedStringFromTable(@"Over",      LOCALIZED_STRING_TABLE_NAME, @"Indicates an exceeding number");
-  NSString *Almost   = NSLocalizedStringFromTable(@"Almost",    LOCALIZED_STRING_TABLE_NAME, @"Indicates an approaching number");
-  //NSString *Second   = NSLocalizedStringFromTable(@"second",  LOCALIZED_STRING_TABLE_NAME, @"One second in time");
-  NSString *Seconds  = NSLocalizedStringFromTable(@"seconds",   LOCALIZED_STRING_TABLE_NAME, @"More than one second in time");
-  NSString *Minute   = NSLocalizedStringFromTable(@"minute",    LOCALIZED_STRING_TABLE_NAME, @"One minute in time");
-  NSString *Minutes  = NSLocalizedStringFromTable(@"minutes",   LOCALIZED_STRING_TABLE_NAME, @"More than one minute in time");
-  NSString *Hour     = NSLocalizedStringFromTable(@"hour",      LOCALIZED_STRING_TABLE_NAME, @"One hour in time");
-  NSString *Hours    = NSLocalizedStringFromTable(@"hours",     LOCALIZED_STRING_TABLE_NAME, @"More than one hour in time");
-  NSString *Day      = NSLocalizedStringFromTable(@"day",       LOCALIZED_STRING_TABLE_NAME, @"One day in time");
-  NSString *Days     = NSLocalizedStringFromTable(@"days",      LOCALIZED_STRING_TABLE_NAME, @"More than one day in time");
-  NSString *Month    = NSLocalizedStringFromTable(@"month",     LOCALIZED_STRING_TABLE_NAME, @"One month in time");
-  NSString *Months   = NSLocalizedStringFromTable(@"months",    LOCALIZED_STRING_TABLE_NAME, @"More than one month in time");
-  NSString *Year     = NSLocalizedStringFromTable(@"year",      LOCALIZED_STRING_TABLE_NAME, @"One year in time");
-  NSString *Years    = NSLocalizedStringFromTable(@"years",     LOCALIZED_STRING_TABLE_NAME, @"More than one year in time");
+  
+#define Ago      NSLocalizedStringFromTable(@"ago",       LOCALIZED_STRING_TABLE_NAME, @"Denotes past dates")
+#define FromNow  NSLocalizedStringFromTable(@"from now",  LOCALIZED_STRING_TABLE_NAME, @"Denotes future dates")
+#define LessThan NSLocalizedStringFromTable(@"Less than", LOCALIZED_STRING_TABLE_NAME, @"Indicates a less-than number")
+#define About    NSLocalizedStringFromTable(@"About",     LOCALIZED_STRING_TABLE_NAME, @"Indicates an approximate number")
+#define Over     NSLocalizedStringFromTable(@"Over",      LOCALIZED_STRING_TABLE_NAME, @"Indicates an exceeding number")
+#define Almost   NSLocalizedStringFromTable(@"Almost",    LOCALIZED_STRING_TABLE_NAME, @"Indicates an approaching number")
+#define Seconds  NSLocalizedStringFromTable(@"seconds",   LOCALIZED_STRING_TABLE_NAME, @"More than one second in time")
+#define Minute   NSLocalizedStringFromTable(@"minute",    LOCALIZED_STRING_TABLE_NAME, @"One minute in time")
+#define Minutes  NSLocalizedStringFromTable(@"minutes",   LOCALIZED_STRING_TABLE_NAME, @"More than one minute in time")
+#define Hour     NSLocalizedStringFromTable(@"hour",      LOCALIZED_STRING_TABLE_NAME, @"One hour in time")
+#define Hours    NSLocalizedStringFromTable(@"hours",     LOCALIZED_STRING_TABLE_NAME, @"More than one hour in time")
+#define Day      NSLocalizedStringFromTable(@"day",       LOCALIZED_STRING_TABLE_NAME, @"One day in time")
+#define Days     NSLocalizedStringFromTable(@"days",      LOCALIZED_STRING_TABLE_NAME, @"More than one day in time")
+#define Month    NSLocalizedStringFromTable(@"month",     LOCALIZED_STRING_TABLE_NAME, @"One month in time")
+#define Months   NSLocalizedStringFromTable(@"months",    LOCALIZED_STRING_TABLE_NAME, @"More than one month in time")
+#define Year     NSLocalizedStringFromTable(@"year",      LOCALIZED_STRING_TABLE_NAME, @"One year in time")
+#define Years    NSLocalizedStringFromTable(@"years",     LOCALIZED_STRING_TABLE_NAME, @"More than one year in time")
   
   NSTimeInterval since = [self timeIntervalSinceDate:date];
   NSString *direction = since <= 0.0 ? Ago : FromNow;
@@ -188,6 +182,10 @@
     modifier = [modifier stringByAppendingString:@" "];
   }
     
+  if ((options & ~kDOTIWStringComponentJustNow) == allOptionsEnabledByDefault) {
+    return [NSString stringWithFormat:@"%@%d %@ %@", modifier, number, measure, direction];
+  }
+
   NSMutableString *resultString = [NSMutableString string];
     
   if (options & kDOTIWStringComponentModifier)
